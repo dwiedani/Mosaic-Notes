@@ -1,0 +1,24 @@
+name: Check
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: Mosaic-Notes
+      - uses: actions/checkout@v4
+        with:
+          repository: dwiedani/Mosaic
+          path: Mosaic
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.14"
+      - run: npm ci && npm run build
+        working-directory: Mosaic
+      - run: npm ci && npm run check
+        working-directory: Mosaic-Notes
+      - run: npx playwright install --with-deps chromium
+        working-directory: Mosaic
+      - run: npm run test:browser
+        working-directory: Mosaic-Notes
