@@ -16,7 +16,7 @@ async function main() {
   );
   await new AppInstaller(db, join(root, "installed")).install({
     repo: "https://github.com/dwiedani/Mosaic-Notes",
-    tag: "v1.0.0",
+    tag: "v0.0.1",
     commitSha: "0".repeat(40),
     asset: "local-validation:mosaic-app.zip",
     checksum: checksums["mosaic-app.zip"],

@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 — 5. Oktober 2026
+## 0.0.1 — 5. Oktober 2026
 
 - Eigenständige Mosaic-App `notes` mit Erstellen, Bearbeiten, Suche, Anheften und bestätigtem Löschen.
 - Widgets `notes:recent` und `notes:quick-note` in Medium und Large.

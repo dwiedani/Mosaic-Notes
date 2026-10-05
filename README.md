@@ -36,7 +36,7 @@ npm run check
 
 `npm run package` erzeugt `dist/manifest.json`, Browser-Entrypoints, `release/mosaic-app.zip` und `release/checksums.json`. React und SDK bleiben externe Host-Abhängigkeiten. Die Definition steht ausschließlich in `dashboard.config.ts`.
 
-Für die Installation per Repository-Link ein stabiles GitHub-Release `v1.0.0` mit den beiden Release-Dateien veröffentlichen. Anschließend in Mosaic unter Apps den Repository-Link `https://github.com/dwiedani/Mosaic-Notes` installieren. Ein lokaler Pakettest ersetzt keinen veröffentlichten GitHub-Release-Test.
+Für die Installation per Repository-Link ein stabiles GitHub-Release `v0.0.1` mit den beiden Release-Dateien veröffentlichen. Anschließend in Mosaic unter Apps den Repository-Link `https://github.com/dwiedani/Mosaic-Notes` installieren. Ein lokaler Pakettest ersetzt keinen veröffentlichten GitHub-Release-Test.
 
 ## Daten und Grenzen
 
