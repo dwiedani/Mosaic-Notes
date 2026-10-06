@@ -45,3 +45,7 @@ App und Widgets verwenden denselben Service, den Query-Key `["notes", "list"]` u
 Schreibvorgänge innerhalb derselben Browser-Runtime werden serialisiert. Mehrere Tabs/Geräte unterliegen dem Last-Write-Wins-Verhalten des aktuellen Mosaic-Storage; ein Konfliktprotokoll und Offline-Synchronisierung sind nicht vorhanden. Grenzen: 200 Zeichen pro Titel, 50.000 Zeichen pro Inhalt. Keine externen Dienste, Secrets oder App-Backend-Abhängigkeiten.
 
 Styles werden mit den Entrypoints eingebettet und auf `.notes-surface` begrenzt, da der aktuelle App-Builder keinen eigenständigen CSS-Loader anbietet. Alle Farben und Abstände folgen Mosaic-Tokens.
+
+## Context-Unterstützung
+
+Die bestehende App-ID bleibt `notes`; EntityRefs verwenden `{ appId: "notes", type: "note", id }`. App und Recent-Widget filtern über die optionale Mosaic Context API, Context-Chips erlauben explizite Mehrfachzuordnungen. All zeigt alle Notizen. Neue Notizen und Quick-Note-Widget-Eingaben werden niemals automatisch dem aktiven Context zugeordnet. CRUD schreibt weiterhin ausschließlich das vollständige app-eigene Notebook; der gefilterte Sichtbestand wird nicht als Ersatz gespeichert. Cloud, Flat und Pixel verwenden dieselben semantischen Tokens und App-Logik.

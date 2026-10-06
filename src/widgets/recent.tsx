@@ -1,3 +1,4 @@
+import { ContextChips } from "@mosaic/sdk";
 import {
   Button,
   EmptyState,
@@ -68,6 +69,13 @@ export default function RecentNotes({ size, settings }: WidgetProps) {
                         </span>
                       )}
                     </button>
+                    <ContextChips
+                      entity={{
+                        appId: dashboard.app.id,
+                        type: "note",
+                        id: note.id,
+                      }}
+                    />
                   </li>
                 ))}
             </ul>

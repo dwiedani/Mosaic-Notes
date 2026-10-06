@@ -1,3 +1,4 @@
+import { ContextChips } from "@mosaic/sdk";
 import { useEffect, useId, useRef, useState } from "react";
 import {
   Button,
@@ -215,6 +216,13 @@ export default function NotesApp({ path }: AppProps) {
                         {new Date(note.updatedAt).toLocaleDateString("de-DE")}
                       </small>
                     </button>
+                    <ContextChips
+                      entity={{
+                        appId: dashboard.app.id,
+                        type: "note",
+                        id: note.id,
+                      }}
+                    />
                   </li>
                 ))}
               </ul>

@@ -1,15 +1,22 @@
 import { useCallback } from "react";
-import { useAppQuery, useDashboard } from "@mosaic/sdk";
+import { useContextQuery, useDashboard } from "@mosaic/sdk";
 import { NOTES_KEY } from "../domain/notes";
 import { loadNotebook } from "./notebook";
 
 export function useNotes() {
   const dashboard = useDashboard();
-  const query = useCallback(
-    () => loadNotebook(dashboard.storage),
-    [dashboard.storage],
-  );
-  const state = useAppQuery({ key: NOTES_KEY, query });
+  const query = useCallback(async () => {
+    const notebook = await loadNotebook(dashboard.storage);
+    return {
+      ...notebook,
+      notes: await dashboard.contexts.filter(notebook.notes, (note) => ({
+        appId: dashboard.app.id,
+        type: "note",
+        id: note.id,
+      })),
+    };
+  }, [dashboard.storage, dashboard.contexts, dashboard.app.id]);
+  const state = useContextQuery({ key: NOTES_KEY, query });
   return {
     dashboard,
     state,

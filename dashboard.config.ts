@@ -8,6 +8,7 @@ export default defineApp({
   icon: "grid",
   requires: { dashboardApi: ">=1.0.0 <2.0.0" },
   app: { component: () => import("./src/app") },
+  entityTypes: [{ type: "note", label: "Notiz", contextAware: true }],
   widgets: [
     defineWidget({
       id: "recent",

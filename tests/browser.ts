@@ -195,6 +195,55 @@ try {
     page.getByText("Notiz gelöscht.", { exact: true }),
   ).toBeVisible();
   expect(errors).toEqual([]);
+  for (const theme of ["cloud", "flat", "pixel"]) {
+    await page
+      .getByRole("button", { name: "Profil und Einstellungen" })
+      .click();
+    await page.getByLabel("Theme", { exact: true }).selectOption(theme);
+    await page.getByRole("button", { name: "Fertig", exact: true }).click();
+    await expect(page.locator(".mosaic")).toHaveAttribute("data-theme", theme);
+    await expect(
+      page.getByRole("button", { name: "Neue Notiz", exact: true }),
+    ).toBeVisible();
+    await page.screenshot({
+      path: `test-results/${theme}-context-notes.png`,
+      fullPage: true,
+    });
+  }
+  await page
+    .getByRole("combobox", { name: "Aktiver Context" })
+    .selectOption("new");
+  const contextDialog = page.getByRole("dialog", { name: "Neuer Context" });
+  await contextDialog.getByLabel("Name", { exact: true }).fill("Research");
+  await contextDialog
+    .getByRole("button", { name: "Erstellen", exact: true })
+    .click();
+  await expect(contextDialog).toHaveCount(0);
+  const row = page
+    .getByRole("listitem")
+    .filter({ has: page.getByRole("button", { name: /Mit Inhalt/ }) });
+  await row.getByRole("button", { name: "Contexts zuordnen" }).click();
+  const attached = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/contexts") &&
+      response.request().method() === "POST" &&
+      response.request().postDataJSON()?.action === "attach",
+  );
+  await row.getByRole("checkbox", { name: "Research", exact: true }).click();
+  expect((await attached).ok()).toBe(true);
+  await page
+    .getByRole("combobox", { name: "Aktiver Context" })
+    .selectOption({ label: "Research" });
+  await expect(page.getByRole("button", { name: /Mit Inhalt/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Mosaic Ideen/ })).toHaveCount(
+    0,
+  );
+  await page
+    .getByRole("combobox", { name: "Aktiver Context" })
+    .selectOption("");
+  await expect(
+    page.getByRole("button", { name: /Mosaic Ideen/ }),
+  ).toBeVisible();
   console.log(
     "PASS: CRUD, search, pinning, reload, deep links, themes, mobile, two independent quick widgets, shared query invalidation, no browser errors.",
   );
