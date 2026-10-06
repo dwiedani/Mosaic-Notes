@@ -8,7 +8,7 @@ Eine eigenständige Notizen-App für Mosaic (Dashboard-API `>=1.0.0 <2.0.0`).
 - Titel und Inhalt durchsuchen, Wichtiges anheften und nach angehefteten Notizen filtern.
 - **Letzte Notizen:** Übersicht mit Detailnavigation, konfigurierbarer Anzahl und Pin-Filter.
 - **Schnelle Notiz:** Direkt im Dashboard schreiben und speichern; Medium bietet einen kompakten Titel, Large zusätzlich ein Textfeld.
-- Beide Widgets unterstützen `medium` und `large`, mehrere unabhängige Instanzen und Cloud/Pixel.
+- Beide Widgets unterstützen `medium` und `large`, mehrere unabhängige Instanzen und Cloud/Flat/Pixel.
 
 Änderungen im Editor werden ausdrücklich mit **Speichern** gesichert. Beim Wechsel zu einer anderen Notiz wird vor ungespeicherten Änderungen gewarnt. Vor dem Verlassen der App über die Mosaic-Navigation speichern. Texte werden als Klartext dargestellt, einschließlich Markdown-Zeichen.
 
@@ -36,7 +36,7 @@ npm run check
 
 `npm run package` erzeugt `dist/manifest.json`, Browser-Entrypoints, `release/mosaic-app.zip` und `release/checksums.json`. React und SDK bleiben externe Host-Abhängigkeiten. Die Definition steht ausschließlich in `dashboard.config.ts`.
 
-Für die Installation per Repository-Link ein stabiles GitHub-Release `v0.0.1` mit den beiden Release-Dateien veröffentlichen. Anschließend in Mosaic unter Apps den Repository-Link `https://github.com/dwiedani/Mosaic-Notes` installieren. Ein lokaler Pakettest ersetzt keinen veröffentlichten GitHub-Release-Test.
+Für die Installation per Repository-Link ein stabiles GitHub-Release entsprechend der Paketversion mit den beiden Release-Dateien veröffentlichen. Anschließend in Mosaic unter Apps den Repository-Link `https://github.com/dwiedani/Mosaic-Notes` installieren oder aktualisieren. Ein lokaler Pakettest ersetzt keinen veröffentlichten GitHub-Release-Test.
 
 ## Daten und Grenzen
 
@@ -49,3 +49,5 @@ Styles werden mit den Entrypoints eingebettet und auf `.notes-surface` begrenzt,
 ## Context-Unterstützung
 
 Die bestehende App-ID bleibt `notes`; EntityRefs verwenden `{ appId: "notes", type: "note", id }`. App und Recent-Widget filtern über die optionale Mosaic Context API, Context-Chips erlauben explizite Mehrfachzuordnungen. All zeigt alle Notizen. Neue Notizen und Quick-Note-Widget-Eingaben werden niemals automatisch dem aktiven Context zugeordnet. CRUD schreibt weiterhin ausschließlich das vollständige app-eigene Notebook; der gefilterte Sichtbestand wird nicht als Ersatz gespeichert. Cloud, Flat und Pixel verwenden dieselben semantischen Tokens und App-Logik.
+
+Context-Support ist ab Release 0.0.2 enthalten. Eine Notiz mit „Digant“ im Text wird erst nach expliziter Zuordnung im Context Digant sichtbar. Ein aktiver Context nourish zeigt diese Notiz nur, wenn sie auch nourish zugeordnet ist. Der Editor blendet gespeicherte Notizen außerhalb des Scopes aus; ungespeicherte Entwürfe bleiben mit einem Hinweis erhalten.

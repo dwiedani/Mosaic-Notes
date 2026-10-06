@@ -14,9 +14,12 @@ async function main() {
   const checksums = JSON.parse(
     await readFile(join(source, "release/checksums.json"), "utf8"),
   );
+  const manifest = JSON.parse(
+    await readFile(join(source, "dist/manifest.json"), "utf8"),
+  );
   await new AppInstaller(db, join(root, "installed")).install({
     repo: "https://github.com/dwiedani/Mosaic-Notes",
-    tag: "v0.0.1",
+    tag: `v${manifest.version}`,
     commitSha: "0".repeat(40),
     asset: "local-validation:mosaic-app.zip",
     checksum: checksums["mosaic-app.zip"],

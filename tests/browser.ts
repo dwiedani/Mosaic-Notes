@@ -244,6 +244,84 @@ try {
   await expect(
     page.getByRole("button", { name: /Mosaic Ideen/ }),
   ).toBeVisible();
+  for (const name of ["Digant", "nourish"]) {
+    await page
+      .getByRole("combobox", { name: "Aktiver Context" })
+      .selectOption("new");
+    const dialog = page.getByRole("dialog", { name: "Neuer Context" });
+    await dialog.getByLabel("Name", { exact: true }).fill(name);
+    await dialog
+      .getByRole("button", { name: "Erstellen", exact: true })
+      .click();
+    await expect(dialog).toHaveCount(0);
+  }
+  await page.getByRole("button", { name: "Neue Notiz", exact: true }).click();
+  await page.getByLabel("Titel", { exact: true }).fill("Digant Besprechung");
+  await page
+    .getByLabel("Inhalt", { exact: true })
+    .fill("Morgen wegen digant 8.0.1 besprechung mit achim");
+  await page.getByRole("button", { name: "Speichern", exact: true }).click();
+  await expect(page.getByText("Gespeichert.", { exact: true })).toBeVisible();
+  const switcher = page.getByRole("combobox", { name: "Aktiver Context" });
+  await switcher.selectOption({ label: "Digant" });
+  await expect(
+    page.getByRole("button", { name: /Digant Besprechung/ }),
+  ).toHaveCount(0);
+  await expect(page.getByLabel("Inhalt", { exact: true })).toHaveCount(0);
+  await switcher.selectOption("");
+  await expect(
+    page.getByRole("button", { name: /Digant Besprechung/ }),
+  ).toBeVisible();
+  const digantRow = page
+    .getByRole("listitem")
+    .filter({ has: page.getByRole("button", { name: /Digant Besprechung/ }) });
+  await digantRow.getByRole("button", { name: "Contexts zuordnen" }).click();
+  await digantRow
+    .getByRole("checkbox", { name: "Digant", exact: true })
+    .click();
+  await expect(
+    digantRow.getByRole("checkbox", { name: "Digant", exact: true }),
+  ).toBeChecked();
+  await switcher.selectOption({ label: "Digant" });
+  await expect(
+    page.getByRole("button", { name: /Digant Besprechung/ }),
+  ).toBeVisible();
+  await switcher.selectOption({ label: "nourish" });
+  await expect(
+    page.getByRole("button", { name: /Digant Besprechung/ }),
+  ).toHaveCount(0);
+  await expect(page.getByLabel("Inhalt", { exact: true })).toHaveCount(0);
+  await switcher.selectOption({ label: "Digant" });
+  await page
+    .getByLabel("Inhalt", { exact: true })
+    .fill("Ungespeicherter Digant-Entwurf");
+  await switcher.selectOption({ label: "nourish" });
+  await expect(
+    page.getByText(
+      "Dieser ungespeicherte Entwurf liegt außerhalb des aktiven Contexts.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(page.getByLabel("Inhalt", { exact: true })).toHaveValue(
+    "Ungespeicherter Digant-Entwurf",
+  );
+  await switcher.selectOption("");
+  await page.getByRole("button", { name: "Speichern", exact: true }).click();
+  await expect(page.getByText("Gespeichert.", { exact: true })).toBeVisible();
+  await switcher.selectOption({ label: "nourish" });
+  await expect(page.getByLabel("Inhalt", { exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Dashboard", exact: true }).click();
+  await expect(
+    page
+      .getByRole("article", { name: "Letzte Notizen", exact: true })
+      .getByRole("button", { name: /Digant Besprechung/ }),
+  ).toHaveCount(0);
+  await switcher.selectOption("");
+  await expect(
+    page
+      .getByRole("article", { name: "Letzte Notizen", exact: true })
+      .getByRole("button", { name: /Digant Besprechung/ }),
+  ).toBeVisible();
   console.log(
     "PASS: CRUD, search, pinning, reload, deep links, themes, mobile, two independent quick widgets, shared query invalidation, no browser errors.",
   );

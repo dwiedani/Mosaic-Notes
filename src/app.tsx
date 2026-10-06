@@ -32,6 +32,11 @@ export default function NotesApp({ path }: AppProps) {
   const [deleting, setDeleting] = useState(false);
   const initializedPath = useRef<string | null>(null);
   const dirty = draft !== null && JSON.stringify(draft) !== original;
+  const outsideScope =
+    draft !== null &&
+    state.status === "ready" &&
+    state.data.allNoteIds.includes(draft.id) &&
+    !state.data.notes.some((note) => note.id === draft.id);
   function open(note: Draft) {
     setDraft(note);
     setOriginal(JSON.stringify(note));
@@ -230,13 +235,23 @@ export default function NotesApp({ path }: AppProps) {
           )}
         </aside>
         <section aria-label="Notizeditor">
-          {draft ? (
+          {outsideScope && !dirty ? (
+            <EmptyState title="Notiz außerhalb des Contexts">
+              Wähle All oder den passenden Context, um diese Notiz anzuzeigen.
+            </EmptyState>
+          ) : draft ? (
             <form
               onSubmit={(event) => {
                 event.preventDefault();
                 void save();
               }}
             >
+              {outsideScope && dirty && (
+                <p role="status">
+                  Dieser ungespeicherte Entwurf liegt außerhalb des aktiven
+                  Contexts.
+                </p>
+              )}
               <fieldset
                 disabled={busy}
                 style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}

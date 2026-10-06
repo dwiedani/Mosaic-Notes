@@ -9,6 +9,7 @@ export function useNotes() {
     const notebook = await loadNotebook(dashboard.storage);
     return {
       ...notebook,
+      allNoteIds: notebook.notes.map((note) => note.id),
       notes: await dashboard.contexts.filter(notebook.notes, (note) => ({
         appId: dashboard.app.id,
         type: "note",
