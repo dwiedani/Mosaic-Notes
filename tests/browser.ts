@@ -38,7 +38,17 @@ try {
   await page.getByLabel("Notiz anheften", { exact: true }).check();
   await page.getByRole("button", { name: "Speichern", exact: true }).click();
   await expect(page.getByText("Gespeichert.", { exact: true })).toBeVisible();
+  const approvals = page.getByRole("complementary", {
+    name: "Context-Zuordnungen",
+  });
+  const newNoteApproval = approvals
+    .getByRole("article")
+    .filter({ hasText: "Mosaic Ideen" });
+  await expect(newNoteApproval).toContainText("Noch keinem Context zugeordnet");
   await page.reload();
+  await expect(newNoteApproval).toBeVisible();
+  await newNoteApproval.getByRole("button", { name: "Ohne Context" }).click();
+  await expect(newNoteApproval).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: /Mosaic Ideen/ }),
   ).toBeVisible();
@@ -175,6 +185,13 @@ try {
   await expect(
     recent.getByRole("button", { name: /Mit Inhalt/ }),
   ).toBeVisible();
+  await expect(
+    approvals.getByRole("article").filter({ hasText: "Mit Inhalt" }),
+  ).toBeVisible();
+  await expect(
+    approvals.getByRole("article").filter({ hasText: "Vom Widget" }),
+  ).toBeVisible();
+  await approvals.getByRole("button", { name: /Später/ }).click();
   await page.screenshot({
     path: "test-results/pixel-widgets.png",
     fullPage: true,

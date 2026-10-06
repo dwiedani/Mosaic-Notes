@@ -6,7 +6,11 @@ import {
   selectNotes,
   type Notebook,
 } from "../src/domain/notes";
-import { loadNotebook, mutateNotebook } from "../src/services/notebook";
+import {
+  loadNotebook,
+  mutateNotebook,
+  persistNote,
+} from "../src/services/notebook";
 import type { DashboardAPI } from "@mosaic/sdk";
 
 const first = "2026-10-05T08:00:00.000Z";
@@ -125,6 +129,39 @@ test("parallel widget writes retain both notes and invalidate the shared query",
   ]);
   assert.equal((await loadNotebook(dashboard.storage)).notes.length, 2);
   assert.equal(invalidations(), 2);
+});
+test("only successfully created notes request context choice; prompt failures preserve saved data", async () => {
+  const { dashboard, fail } = fixture();
+  const requested: unknown[] = [];
+  const notices: unknown[] = [];
+  const withContexts = {
+    ...dashboard,
+    contexts: {
+      ...dashboard.contexts,
+      requestAssignment: async (entity: unknown, label: string) => {
+        requested.push({ entity, label });
+        assert.equal(
+          (await loadNotebook(dashboard.storage)).notes.some(
+            (note) => note.id === draft.id,
+          ),
+          true,
+        );
+        throw new Error("Request unavailable");
+      },
+    },
+    notifications: { show: (notice: unknown) => notices.push(notice) },
+  } as DashboardAPI;
+  fail();
+  await assert.rejects(persistNote(withContexts, draft));
+  assert.equal(requested.length, 0);
+  await persistNote(withContexts, draft);
+  assert.deepEqual(requested, [
+    { entity: { appId: "notes", type: "note", id: "a" }, label: "Idee" },
+  ]);
+  assert.equal(notices.length, 1);
+  await persistNote(withContexts, { ...draft, title: "Edit" });
+  assert.equal(requested.length, 1);
+  assert.equal((await loadNotebook(dashboard.storage)).notes[0]?.title, "Edit");
 });
 test("failed storage write preserves prior data and does not block retry or deletion", async () => {
   const { dashboard, fail, invalidations } = fixture();

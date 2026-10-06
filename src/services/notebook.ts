@@ -36,11 +36,29 @@ export function mutateNotebook(
     .catch(() => undefined);
   return operation;
 }
-export function persistNote(
+export async function persistNote(
   dashboard: DashboardAPI,
   draft: Pick<Note, "id" | "title" | "body" | "pinned">,
 ): Promise<void> {
-  return mutateNotebook(dashboard, (current) =>
-    saveNote(current, draft, new Date().toISOString()),
-  );
+  let created = false;
+  await mutateNotebook(dashboard, (current) => {
+    created = !current.notes.some((note) => note.id === draft.id);
+    return saveNote(current, draft, new Date().toISOString());
+  });
+  // Older hosts keep working; a failed platform request must not undo a saved note.
+  if (created && dashboard.contexts?.requestAssignment) {
+    try {
+      await dashboard.contexts.requestAssignment(
+        { appId: dashboard.app.id, type: "note", id: draft.id },
+        draft.title.trim().slice(0, 200),
+      );
+    } catch {
+      dashboard.notifications.show({
+        title: "Notiz gespeichert",
+        message:
+          "Die Context-Auswahl konnte nicht geöffnet werden. Du kannst den Context an der Notiz zuordnen.",
+        kind: "error",
+      });
+    }
+  }
 }

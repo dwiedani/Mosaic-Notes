@@ -48,6 +48,8 @@ Styles werden mit den Entrypoints eingebettet und auf `.notes-surface` begrenzt,
 
 ## Context-Unterstützung
 
+Neue Notizen öffnen nach erfolgreichem Speichern ein Mosaic-Popup unten rechts, sofern der Host `contexts.requestAssignment` unterstützt. Der Nutzer wählt/bestätigt dort einen Context, erstellt einen neuen oder lässt die Notiz ausdrücklich ohne Context. Mehrere offene Anfragen werden gestapelt und pro Nutzer gespeichert. Notizinhalte werden nicht an AI geschickt; nur EntityRef und Titel dienen der Anfrage. Bearbeitungen erzeugen keine erneute Anfrage. Ein fehlgeschlagener Popup-Aufruf macht das erfolgreiche Speichern nicht rückgängig.
+
 Die bestehende App-ID bleibt `notes`; EntityRefs verwenden `{ appId: "notes", type: "note", id }`. App und Recent-Widget filtern über die optionale Mosaic Context API, Context-Chips erlauben explizite Mehrfachzuordnungen. All zeigt alle Notizen. Neue Notizen und Quick-Note-Widget-Eingaben werden niemals automatisch dem aktiven Context zugeordnet. CRUD schreibt weiterhin ausschließlich das vollständige app-eigene Notebook; der gefilterte Sichtbestand wird nicht als Ersatz gespeichert. Cloud, Flat und Pixel verwenden dieselben semantischen Tokens und App-Logik.
 
 Context-Support ist ab Release 0.0.2 enthalten. Eine Notiz mit „Digant“ im Text wird erst nach expliziter Zuordnung im Context Digant sichtbar. Ein aktiver Context nourish zeigt diese Notiz nur, wenn sie auch nourish zugeordnet ist. Der Editor blendet gespeicherte Notizen außerhalb des Scopes aus; ungespeicherte Entwürfe bleiben mit einem Hinweis erhalten.

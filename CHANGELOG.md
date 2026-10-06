@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.3 — 7. Oktober 2026
+
+- Neue Notizen aus App und Quick-Note-Widget öffnen nach erfolgreichem Speichern die zentrale Mosaic-Context-Auswahl. Keine automatische Zuordnung oder AI-Inhaltsanalyse; Fehler der Context-Anfrage lassen gespeicherte Notizen erhalten. Ältere Hosts bleiben über Capability-Check kompatibel. Storage-Format unverändert.
+
 ## 0.0.2 — 7. Oktober 2026
 
 - Context-Filter in App und Recent-Widget sowie Context-Chips für explizite Mehrfachzuordnungen.

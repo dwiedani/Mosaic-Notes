@@ -112,6 +112,28 @@ export default function NotesApp({ path }: AppProps) {
       setOriginal("");
       setDeleting(false);
       setMessage("Notiz gelöscht.");
+      if (dashboard.contexts.assignmentRequests) {
+        try {
+          const requests = await dashboard.contexts.assignmentRequests();
+          for (const request of requests) {
+            if (
+              request.entity.appId === dashboard.app.id &&
+              request.entity.type === "note" &&
+              request.entity.id === draft.id
+            )
+              await dashboard.contexts.resolveAssignmentRequest(
+                request.id,
+                null,
+              );
+          }
+        } catch {
+          dashboard.notifications.show({
+            title: "Notiz gelöscht",
+            message: "Die offene Context-Anfrage konnte nicht entfernt werden.",
+            kind: "error",
+          });
+        }
+      }
     } catch {
       setError("Löschen fehlgeschlagen. Bitte erneut versuchen.");
     } finally {
