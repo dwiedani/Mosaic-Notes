@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.4 — 7. Oktober 2026
+
+- Neue Notizen und Quick Notes fragen im Hintergrund über `mosaic.ai.suggestContexts` nach Vorschlägen anhand von Titel und maximal 12.000 Zeichen Inhalt. Mosaic gibt alle verfügbaren Contexts mit; keine Suche in anderen Notizen und keine automatische Zuordnung.
+- Vorschläge erscheinen mit geschätzter Sicherheit im Popup und benötigen User-Bestätigung. Speichern wartet nicht auf AI; ohne Provider, bei fehlendem Treffer oder Providerfehler bleibt manuelle Context-Auswahl möglich. Änderungen bestehender Notizen lösen keine erneute Inferenz aus.
+
 ## 0.0.3 — 7. Oktober 2026
 
 - Neue Notizen aus App und Quick-Note-Widget öffnen nach erfolgreichem Speichern die zentrale Mosaic-Context-Auswahl. Keine automatische Zuordnung oder AI-Inhaltsanalyse; Fehler der Context-Anfrage lassen gespeicherte Notizen erhalten. Ältere Hosts bleiben über Capability-Check kompatibel. Storage-Format unverändert.

@@ -1,4 +1,4 @@
-import type { DashboardAPI } from "@mosaic/sdk";
+import type { DashboardAPI, ContextAssignmentRequest } from "@mosaic/sdk";
 import {
   parseNotebook,
   saveNote,
@@ -11,6 +11,33 @@ import {
 type Storage = DashboardAPI["storage"];
 // Serialize read/write cycles across app and widget instances in this browser.
 const queues = new Map<string, Promise<unknown>>();
+const CONTEXT_CONTENT_LIMIT = 12000;
+async function suggestNoteContexts(
+  dashboard: DashboardAPI,
+  request: ContextAssignmentRequest,
+  draft: Pick<Note, "title" | "body">,
+) {
+  if (!dashboard.ai?.suggestContexts) return;
+  const providers = await dashboard.ai.providers();
+  if (
+    !providers.some((provider) =>
+      provider.capabilities.includes("structured-output"),
+    )
+  )
+    return;
+  await dashboard.ai.suggestContexts(
+    request.entity,
+    {
+      prompt: JSON.stringify({
+        title: draft.title.trim(),
+        content: draft.body.slice(0, CONTEXT_CONTENT_LIMIT),
+        truncated: draft.body.length > CONTEXT_CONTENT_LIMIT,
+      }),
+      contextId: null,
+    },
+    { assignmentRequestId: request.id },
+  );
+}
 export async function loadNotebook(storage: Storage): Promise<Notebook> {
   const value = await storage.get<unknown>(STORAGE_KEY);
   return value === null ? { version: 1, notes: [] } : parseNotebook(value);
@@ -48,10 +75,19 @@ export async function persistNote(
   // Older hosts keep working; a failed platform request must not undo a saved note.
   if (created && dashboard.contexts?.requestAssignment) {
     try {
-      await dashboard.contexts.requestAssignment(
+      const request = await dashboard.contexts.requestAssignment(
         { appId: dashboard.app.id, type: "note", id: draft.id },
         draft.title.trim().slice(0, 200),
       );
+      if (request)
+        void suggestNoteContexts(dashboard, request, draft).catch(() => {
+          dashboard.notifications.show({
+            title: "Context manuell wählen",
+            message:
+              "Der AI-Vorschlag konnte nicht ermittelt werden. Die Notiz ist gespeichert.",
+            kind: "info",
+          });
+        });
     } catch {
       dashboard.notifications.show({
         title: "Notiz gespeichert",

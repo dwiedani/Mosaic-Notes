@@ -163,6 +163,68 @@ test("only successfully created notes request context choice; prompt failures pr
   assert.equal(requested.length, 1);
   assert.equal((await loadNotebook(dashboard.storage)).notes[0]?.title, "Edit");
 });
+test("new-note AI guessing is bounded, provider-neutral and never delays or assigns the save", async () => {
+  const { dashboard } = fixture();
+  const entity = { appId: "notes", type: "note", id: draft.id };
+  const requestId = crypto.randomUUID();
+  const calls: unknown[] = [];
+  const notices: unknown[] = [];
+  let failInference: (cause: Error) => void = () => {};
+  const pendingInference = new Promise<never>((_resolve, reject) => {
+    failInference = reject;
+  });
+  const runtime = {
+    ...dashboard,
+    contexts: {
+      ...dashboard.contexts,
+      requestAssignment: async () => ({ id: requestId, entity, label: "Idee" }),
+    },
+    ai: {
+      ...dashboard.ai,
+      providers: async () => [
+        { id: "any-provider", capabilities: ["structured-output"] },
+      ],
+      suggestContexts: async (...args: unknown[]) => {
+        calls.push(args);
+        return pendingInference;
+      },
+    },
+    notifications: { show: (notice: unknown) => notices.push(notice) },
+  } as DashboardAPI;
+  await persistNote(runtime, { ...draft, body: "x".repeat(20000) });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(calls.length, 1);
+  const call = calls[0] as [
+    unknown,
+    { prompt: string; contextId: unknown },
+    unknown,
+  ];
+  assert.deepEqual(call[0], entity);
+  assert.equal(call[1].contextId, null);
+  assert.deepEqual(JSON.parse(call[1].prompt), {
+    title: "Idee",
+    content: "x".repeat(12000),
+    truncated: true,
+  });
+  assert.deepEqual(call[2], { assignmentRequestId: requestId });
+  assert.equal(
+    (await loadNotebook(dashboard.storage)).notes[0]?.body.length,
+    20000,
+  );
+  await persistNote(runtime, { ...draft, title: "Edit" });
+  assert.equal(calls.length, 1);
+  failInference(new Error("Provider unavailable"));
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(notices.length, 1);
+  assert.equal((await loadNotebook(dashboard.storage)).notes[0]?.title, "Edit");
+  const noProvider = {
+    ...runtime,
+    ai: { ...runtime.ai, providers: async () => [] },
+  };
+  await persistNote(noProvider, { ...draft, id: "b" });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(calls.length, 1);
+});
 test("failed storage write preserves prior data and does not block retry or deletion", async () => {
   const { dashboard, fail, invalidations } = fixture();
   await mutateNotebook(dashboard, (book) => saveNote(book, draft, first));
